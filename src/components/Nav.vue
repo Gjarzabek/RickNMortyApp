@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid">
+    <div class="container-fluid borderBottom">
         <div class="row align-items-center">
             <div class="col-sm-1 col-lg-1"></div>
             <div class="col-12 col-sm-4 col-lg-2">
@@ -8,19 +8,33 @@
             <div class="col-12 col-sm-6 col-lg-7">
                 <div class="container-fluid">
                     <div class="row justify-content-start">
-                        <div class="col col-sm col-md-10 col-lg-7 col-xl-6 align-items-left border">
-                            <div class="container">
-                                <div class="row align-items-start">
-                                    <div class="col-3 bg-dark search">
-                                        Search by
+                        <div class="col-12 col-md-11 col-lg-8 colr-xl-5 align-items-left">
+                            <div class="navBar">
+                                <div class="navBarItem">Search by</div>
+                                <div class="navBarItem" @click="toogleDropdown">
+                                    <div class="itemContent">
+                                        {{activeFilter}}
+                                        <div class="arrow-down"></div>
                                     </div>
+                                </div>
+                                <div class="container">
+                                    <div class="row">
+                                        <input class="col-7 col-sm-7 col-xl-10 searchInput" type="text">
+                                        <img class="searchIcon" src="../assets/search.png">
+                                    </div> 
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="row dropDownMenu" v-if="showDropdown">
+                        <div class="col align-items-center" style="margin: 0px; padding: 0px;">
+                            <div class="menuItem" @click="setActiveFilter('Name')">Name</div>
+                            <div class="menuItem" @click="setActiveFilter('Identifier')">Identifier</div>
+                            <div class="menuItem last" @click="setActiveFilter('Episode')">Episode</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-1 col-lg"></div>
         </div>
     </div>
 </template>
@@ -30,6 +44,21 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   props: [],
+  data() {
+      return {
+          showDropdown: false,
+          activeFilter: "Name"
+      };
+  },
+  methods: {
+      toogleDropdown(): void {
+          this.showDropdown = !this.showDropdown;
+      },
+      setActiveFilter(filter: string): void {
+          this.activeFilter = filter;
+          this.toogleDropdown();
+      }
+  },
   components: {},
   computed: {}
 })
@@ -37,30 +66,76 @@ export default defineComponent({
 
 <style>
 
-.marginZero {
+.borderBottom {
+    padding-bottom: 30px;
+    border-bottom: 1px solid #A9B1BD;
+}
+
+.searchIcon {
+    margin-top: 5px;
+    height: 34px;
+    width: auto;
+}
+
+.navBar {
+    position: relative;
+    border-radius: 10px;
+    border: 1px solid #A9B1BD;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+}
+
+.searchInput {
+    outline: none;
+    border: none;
+    min-width: 30px;
+    height: 44px;
+}
+
+.navBarItem {
+    min-width: 95px;
+    padding: 10px;
+    color: #A9B1BD;
+    border-right: 1px #A9B1BD solid;
+}
+
+.dropDownMenu {
+    position: absolute;
+    left: 140px;
     margin-left: 0;
+    z-index: 2000;
+    background-color: rgb(255, 255, 255);
     padding-left: 0;
 }
 
-.search {
+.menuItem {
+    text-align: left;
+    width: 96px;
     color: #A9B1BD;
-    min-width: 95px;
-    border-right: 1px #A9B1BD solid;
-    margin-left: 0;
+    border-bottom: #A9B1BD 1px solid;
+    border-left: #A9B1BD 1px solid;
+    border-right: #A9B1BD 1px solid;
+    padding: 10px;
+    margin: 0;
 }
 
-.border{
-    border-width: 5px; 
-    border-color: #A9B1BD;
-    border-radius: 15px;
-    text-align: center;
+.last {
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
 }
 
-.searchBar {
-    color: #A9B1BD;
-    border: 2px solid #A9B1BD;
-    border-radius: 5px;
-    height: 56px;
+.itemContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.arrow-down {
+  width: 0; 
+  height: 0; 
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid #A9B1BD;
 }
 
 </style>
