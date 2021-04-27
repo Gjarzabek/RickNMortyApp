@@ -2,13 +2,13 @@
     <div class="container-fluid">
         <div class="row align-items-left">
             <div class="col-sm-1 col-lg-1"></div>
-            <div class="col-5 col-sm-4 col-md-3 col-lg-2 col-xl-1">
-                <div class="debug" :class="{color: isActive('All Characters')}" @click="signalActive('All Characters')">
+            <div class="col-5 col-sm-4 col-md-3 col-lg-2 col-xl-1 text-left">
+                <div class="menuItem" :class="{color: isActive('All Characters')}" @click="signalActive('All Characters')">
                     All Characters
                 </div>
             </div>
-            <div class="col-5 col-sm-4 col-md-3 col-lg-2 col-xl-1">
-                <div class="debug" :class="{color: isActive('Favorites')}" @click="signalActive('Favorites')">
+            <div class="col-5 col-sm-4 col-md-3 col-lg-2 col-xl-1 text-left">
+                <div class="menuItem" :class="{color: isActive('Favorites')}" @click="signalActive('Favorites')">
                     Favorites
                 </div>
             </div>
@@ -43,12 +43,15 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 
-.debug {
+.menuItem {
     margin: 10px;
+    margin-left: 20px;
     text-align: center;
     width: 110px;
+    cursor: pointer;
+    color: #A9B1BD;
 }
 
 .color {

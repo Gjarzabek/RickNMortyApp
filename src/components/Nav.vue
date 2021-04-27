@@ -64,11 +64,11 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 
 .borderBottom {
     padding-bottom: 30px;
-    border-bottom: 1px solid #A9B1BD;
+    border-bottom: 1px solid #E5EAF4;
 }
 
 .searchIcon {
@@ -101,7 +101,7 @@ export default defineComponent({
 
 .dropDownMenu {
     position: absolute;
-    left: 140px;
+    left: 125px;
     margin-left: 0;
     z-index: 2000;
     background-color: rgb(255, 255, 255);
@@ -128,6 +128,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: space-between;
+    cursor: pointer;
 }
 
 .arrow-down {
