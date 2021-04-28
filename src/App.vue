@@ -34,7 +34,6 @@ import PagesIterator from "./components/PagesIterator.vue";
       this.searchRequest(1);
       this.filter = "Name";
       const favoritesString: any = localStorage.getItem('favorites');
-      console.log(favoritesString);
       try {
         this.favorites = JSON.parse(favoritesString);
       }
@@ -57,7 +56,6 @@ import PagesIterator from "./components/PagesIterator.vue";
       },
       ChangeDisplay(event: string): void {
         this.display = event;
-        console.log("changeDisplay: ", event);
       },
       addFavoriteChar(character: any): void {
         const isInFavorites = this.favorites.find((char: any) => {
@@ -74,7 +72,6 @@ import PagesIterator from "./components/PagesIterator.vue";
         const character = this.favorites.find((char: any) => {
             return char.id === charId;
         });
-        console.log('character', character);
         if (!character) return;
         character.favorite = false;
         eventChar.favorite = false;
@@ -95,10 +92,8 @@ import PagesIterator from "./components/PagesIterator.vue";
           this.Characters.set(pageNum, []);
           this.searchRequest(pageNum);
         }
-        console.log("changingPage", pageNum);
       },
       changeFilter(filter: string): void {
-        console.log("FilterChange", filter);
         this.filter = filter;
       },
       searchRequest(phrase: string | number): void {
@@ -130,7 +125,6 @@ import PagesIterator from "./components/PagesIterator.vue";
                 `
               })
             }).then(res => res.json()).then(data => {
-              console.log(data);
               if(!data.data.characters) return;
               this.markFavorites(data.data.characters.results);
               this.searchResult = data.data.characters.results;
@@ -158,7 +152,6 @@ import PagesIterator from "./components/PagesIterator.vue";
                 `
               })
             }).then(res => res.json()).then(data => {
-              console.log(data.data);
               if (!data.data.character) return;
               this.searchResult = [data.data.character];
               this.markFavorites(this.searchResult);
@@ -190,7 +183,6 @@ import PagesIterator from "./components/PagesIterator.vue";
                 `
               })
             }).then(res => res.json()).then(data => {
-              console.log(data);
               if (!data.data.episodes) return;
               this.searchResult = data.data.episodes.results[0].characters
               this.markFavorites(data.data.episodes.results[0].characters);
@@ -220,7 +212,6 @@ import PagesIterator from "./components/PagesIterator.vue";
                 `
               })
             }).then(res => res.json()).then(data => {
-              console.log(data.data);
               if (!data.data.characters)  return;
               this.Characters.set(phrase, data.data.characters.results);
               this.markFavorites(data.data.characters.results);

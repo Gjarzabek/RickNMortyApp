@@ -78,7 +78,6 @@ export default defineComponent({
         jumpToPage(pageNum: number) {
             this.signalActivePage(pageNum);
             this.p = this.activePageId - this.previewLen;
-            console.log("ASD", this.p);
         }
     }
 })

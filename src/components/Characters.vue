@@ -58,19 +58,6 @@ export default defineComponent({
         getEpisode(episodes: Array<any>): string {
             if (!episodes || episodes.length < 1) return "";
             else return episodes[episodes.length-1].episode;
-        },
-        genderIconUri(gender: any): string {
-            console.log('gender:', gender);
-            switch(gender) {
-                case 'Male':
-                    return "../assets/male.png";
-                case 'Female':
-                    return "../assets/female.png";
-                case 'Genderless':
-                    return "../assets/clear.png";
-                default:
-                    return "../assets/unknown.png";
-            }
         }
     }
 })
@@ -98,7 +85,7 @@ export default defineComponent({
 }
 
 .charImage {
-    min-height: 90px;
+    min-height: 100px;
     min-width: 80px;
     margin-left: -15px;
 }
