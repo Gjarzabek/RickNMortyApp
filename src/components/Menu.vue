@@ -3,12 +3,12 @@
         <div class="row align-items-left">
             <div class="col-sm-1 col-lg-1"></div>
             <div class="col-5 col-sm-4 col-md-3 col-lg-2 col-xl-1 text-left">
-                <div class="menuItem" :class="{color: isActive('All Characters')}" @click="signalActive('All Characters')">
+                <div class="menuItem" :class="{color: isActive('All Characters') && active}" @click="signalActive('All Characters')">
                     All Characters
                 </div>
             </div>
             <div class="col-5 col-sm-4 col-md-3 col-lg-2 col-xl-1 text-left">
-                <div class="menuItem" :class="{color: isActive('Favorites')}" @click="signalActive('Favorites')">
+                <div class="menuItem" :class="{color: isActive('Favorites') && active}" @click="signalActive('Favorites')">
                     Favorites
                 </div>
             </div>
@@ -22,7 +22,7 @@ import { defineComponent } from 'vue'
 type MenuOption = 'All Characters' | 'Favorites';
 
 export default defineComponent({
-    props: [],
+    props: ["active"],
     data() {
         return {
             activeOption: "All Characters"
@@ -33,7 +33,6 @@ export default defineComponent({
             return option === this.activeOption;
         },
         signalActive(option: MenuOption): void {
-            if (this.activeOption === option) return;
             this.activeOption = option;
             this.$emit('optionChange', option);
         }
@@ -49,7 +48,7 @@ export default defineComponent({
     margin: 10px;
     margin-left: 20px;
     text-align: center;
-    width: 110px;
+    width: 120px;
     cursor: pointer;
     color: #A9B1BD;
 }

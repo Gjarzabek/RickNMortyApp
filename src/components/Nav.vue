@@ -10,8 +10,8 @@
                     <div class="row justify-content-start">
                         <div class="col-12 col-md-11 col-lg-8 colr-xl-5 align-items-left">
                             <div class="navBar">
-                                <div class="navBarItem">Search by</div>
-                                <div class="navBarItem" @click="toogleDropdown">
+                                <div id="searchby" class="navBarItem">Search by</div>
+                                <div id="dropdown" class="navBarItem" @click="toogleDropdown">
                                     <div class="itemContent">
                                         {{activeFilter}}
                                         <div class="arrowDown"></div>
@@ -19,14 +19,14 @@
                                 </div>
                                 <div class="container">
                                     <div class="row">
-                                        <input class="col-7 col-sm-7 col-xl-10 searchInput" type="text">
-                                        <img class="searchIcon" src="../assets/search.png">
+                                        <input class="col-7 col-sm-7 col-xl-10 searchInput" type="text" v-model="searchPhrase" @keypress="inputKeyPressed" :placeholder="currentPlaceholder" autocomplete="off">
+                                        <img class="searchIcon" @click="signalSearch" src="../assets/search.png">
                                     </div> 
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row dropDownMenu" v-if="showDropdown">
+                    <div id="dropdownMenu" class="row dropDownMenu" v-if="showDropdown">
                         <div class="col align-items-center" style="margin: 0px; padding: 0px;">
                             <div class="menuItem" @click="setActiveFilter('Name')">Name</div>
                             <div class="menuItem" @click="setActiveFilter('Identifier')">Identifier</div>
@@ -49,7 +49,8 @@ export default defineComponent({
   data() {
       return {
           showDropdown: false,
-          activeFilter: "Name"
+          activeFilter: "Name",
+          searchPhrase: ""
       };
   },
   methods: {
@@ -61,15 +62,50 @@ export default defineComponent({
           if (this.activeFilter===filter)   return;
           this.activeFilter = filter;
           this.$emit('filterChange', filter);
+      },
+      inputKeyPressed(event: any): void {
+        if (event.key === "Enter") {
+            this.signalSearch();
+        }
+      },
+      signalSearch() {
+        if (this.searchPhrase.length > 0) {
+            this.$emit('filterChange', this.activeFilter);
+            this.$emit('search', this.searchPhrase);
+            this.searchPhrase = "";
+        }
       }
   },
   components: {},
-  computed: {}
+  computed: {
+      currentPlaceholder: function(): string {
+            switch(this.activeFilter) {
+                case 'Name':
+                    return "character name";
+                case 'Identifier':
+                    return "character id eg. 4";
+                case 'Episode':
+                    return 'episode code eg. S01E01';
+                default:
+                    return '';
+            }
+      }
+  }
 })
 </script>
 
 <style scoped>
-
+@media (max-width: 575px) {
+    #searchby {
+        min-width: 70px;
+    }
+    #dropdown {
+        min-width: 85px;
+    }
+    #dropdownMenu {
+        left: 100px;
+    }
+}
 .borderBottom {
     padding-bottom: 30px;
     border-bottom: 1px solid #E5EAF4;
@@ -94,10 +130,15 @@ export default defineComponent({
     border: none;
     min-width: 30px;
     height: 44px;
+    color: #A9B1BD;
+}
+
+.searchInput::placeholder {
+    color: #a9b1bdb7;
 }
 
 .navBarItem {
-    min-width: 95px;
+    min-width: 105px;
     padding: 10px;
     color: #A9B1BD;
     border-right: 1px #A9B1BD solid;
@@ -105,16 +146,17 @@ export default defineComponent({
 
 .dropDownMenu {
     position: absolute;
-    left: 125px;
+    left: 135px;
     margin-left: 0;
     z-index: 2000;
     background-color: rgb(255, 255, 255);
+    border-radius: 10px;
     padding-left: 0;
 }
 
 .menuItem {
     text-align: left;
-    width: 96px;
+    width: 106px;
     color: #A9B1BD;
     border-bottom: #A9B1BD 1px solid;
     border-left: #A9B1BD 1px solid;
@@ -133,6 +175,7 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
+    flex-wrap: wrap;
 }
 
 .arrowDown {

@@ -1,8 +1,8 @@
 <template>
-  <Nav @filterChange="changeFilter"/>
-  <Menu @optionChange="ChangeDisplay"/>
+  <Nav @filterChange="changeFilter" @search="searchRequest"/>
+  <Menu @optionChange="ChangeDisplay" :active="activeMenu"/>
   <Characters @addFavorite="addFavoriteChar" @removeFavorite="removeFavoriteChar" :characters="currentPayload"/>
-  <PagesIterator v-if="isDisplayAllChars" @newPage="changePage"/>
+  <PagesIterator :startPage="pageNum" v-if="isDisplayAllChars" @newPage="changePage"/>
 </template>
 
 <script lang="ts">
@@ -22,23 +22,40 @@ import PagesIterator from "./components/PagesIterator.vue";
   data() {
     return {
       display: "All Characters",
-      currentPage: [
-        {"id":22,"name":"Aqua Rick","status":"unknown","species":"Humanoid","type":"Fish-Person","gender":"Male","origin":{"name":"unknown","url":""},"location":{"name":"Citadel of Ricks","url":"https://rickandmortyapi.com/api/location/3"},"image":"https://rickandmortyapi.com/api/character/avatar/22.jpeg","episode":["https://rickandmortyapi.com/api/episode/10","https://rickandmortyapi.com/api/episode/22","https://rickandmortyapi.com/api/episode/28"],"url":"https://rickandmortyapi.com/api/character/22","created":"2017-11-04T22:41:07.171Z"},
-        {"id":222,"name":"Michael Denny and the Denny Singers","status":"Alive","species":"Human","type":"","gender":"Male","origin":{"name":"unknown","url":""},"location":{"name":"Interdimensional Cable","url":"https://rickandmortyapi.com/api/location/6"},"image":"https://rickandmortyapi.com/api/character/avatar/222.jpeg","episode":["https://rickandmortyapi.com/api/episode/8"],"url":"https://rickandmortyapi.com/api/character/222","created":"2017-12-30T14:44:05.245Z"},
-        {"id":574,"name":"Snake Lincoln","status":"Dead","species":"Animal","type":"Snake","gender":"Male","origin":{"name":"Snake Planet","url":"https://rickandmortyapi.com/api/location/78"},"location":{"name":"Snake Planet","url":"https://rickandmortyapi.com/api/location/78"},"image":"https://rickandmortyapi.com/api/character/avatar/574.jpeg","episode":["https://rickandmortyapi.com/api/episode/36"],"url":"https://rickandmortyapi.com/api/character/574","created":"2020-05-07T12:13:44.361Z"},
-        {"id":622,"name":"Sarge","status":"Alive","species":"Human","type":"Soulless Puppet","gender":"Male","origin":{"name":"Story Train","url":"https://rickandmortyapi.com/api/location/96"},"location":{"name":"Story Train","url":"https://rickandmortyapi.com/api/location/96"},"image":"https://rickandmortyapi.com/api/character/avatar/622.jpeg","episode":["https://rickandmortyapi.com/api/episode/37"],"url":"https://rickandmortyapi.com/api/character/622","created":"2020-08-06T15:59:44.277Z"},
-        {"id":368,"name":"Truth Tortoise","status":"unknown","species":"Mythological Creature","type":"Omniscient being","gender":"Male","origin":{"name":"unknown","url":""},"location":{"name":"unknown","url":""},"image":"https://rickandmortyapi.com/api/character/avatar/368.jpeg","episode":["https://rickandmortyapi.com/api/episode/29"],"url":"https://rickandmortyapi.com/api/character/368","created":"2018-01-10T19:14:35.885Z"},
-        {"id":6,"name":"Abadango Cluster Princess","status":"Alive","species":"Alien","type":"","gender":"Female","origin":{"name":"Abadango","url":"https://rickandmortyapi.com/api/location/2"},"location":{"name":"Abadango","url":"https://rickandmortyapi.com/api/location/2"},"image":"https://rickandmortyapi.com/api/character/avatar/6.jpeg","episode":["https://rickandmortyapi.com/api/episode/27"],"url":"https://rickandmortyapi.com/api/character/6","created":"2017-11-04T19:50:28.250Z"},
-        {"id":16,"name":"Amish Cyborg","status":"Dead","species":"Alien","type":"Parasite","gender":"Male","origin":{"name":"unknown","url":""},"location":{"name":"Earth (Replacement Dimension)","url":"https://rickandmortyapi.com/api/location/20"},"image":"https://rickandmortyapi.com/api/character/avatar/16.jpeg","episode":["https://rickandmortyapi.com/api/episode/15"],"url":"https://rickandmortyapi.com/api/character/16","created":"2017-11-04T21:12:45.235Z"},
-        {"id":25,"name":"Armothy","status":"Dead","species":"unknown","type":"Self-aware arm","gender":"Male","origin":{"name":"Post-Apocalyptic Earth","url":"https://rickandmortyapi.com/api/location/8"},"location":{"name":"Post-Apocalyptic Earth","url":"https://rickandmortyapi.com/api/location/8"},"image":"https://rickandmortyapi.com/api/character/avatar/25.jpeg","episode":["https://rickandmortyapi.com/api/episode/23"],"url":"https://rickandmortyapi.com/api/character/25","created":"2017-11-05T08:54:29.343Z"}
-      ],
+      Characters: new Map(), // pageNum -> [Characters]
+      searchResult: [],
       favorites: [],
-      filter: "Name"
+      filter: "Page",
+      pageNum: 1,
+      graphQlUri: 'https://rickandmortyapi.com/graphql',
     };
   },
+  created() {
+      this.searchRequest(1);
+      this.filter = "Name";
+      const favoritesString: any = localStorage.getItem('favorites');
+      console.log(favoritesString);
+      try {
+        this.favorites = JSON.parse(favoritesString);
+      }
+      catch {
+        this.favorites = [];
+      }
+      for (const character of this.favorites)
+        character.favorite = true;
+  },
   methods: {
+      markFavorites(characters: Array<any>): void {
+        for (const character of characters) {
+            const isInFavorites = this.favorites.find((favorite: any) => {
+                return favorite.id === character.id;
+            });
+            if (isInFavorites) {
+              character.favorite = true;
+            }
+        }
+      },
       ChangeDisplay(event: string): void {
-        if (event === this.display) return;
         this.display = event;
         console.log("changeDisplay: ", event);
       },
@@ -49,31 +66,181 @@ import PagesIterator from "./components/PagesIterator.vue";
         character.favorite = true;
         if (isInFavorites)  return;
         this.favorites.push(character);
+        localStorage.setItem('favorites', JSON.stringify(this.favorites));
+        this.updateCharacterMap(character);
       },
-      removeFavoriteChar(charId: number): void {
+      removeFavoriteChar(eventChar: any): void {
+        const charId: number = eventChar.id;
         const character = this.favorites.find((char: any) => {
             return char.id === charId;
         });
+        console.log('character', character);
         if (!character) return;
         character.favorite = false;
+        eventChar.favorite = false;
         this.favorites = this.favorites.filter((char: any) => {return char.id != charId});
+        localStorage.setItem('favorites', JSON.stringify(this.favorites));
+        this.updateCharacterMap(character);
+      },
+      async updateCharacterMap(character: any): Promise<void> {
+        for (const pair of this.Characters) {
+            for (const char of pair[1])
+              if (char.id === character.id) char.favorite = character.favorite;
+        }
       },
       changePage(pageNum: number): void {
+        this.pageNum = pageNum;
+        this.filter = "Page";
+        if (!this.Characters.has(pageNum)) {
+          this.Characters.set(pageNum, []);
+          this.searchRequest(pageNum);
+        }
         console.log("changingPage", pageNum);
       },
       changeFilter(filter: string): void {
         console.log("FilterChange", filter);
         this.filter = filter;
+      },
+      searchRequest(phrase: string | number): void {
+        if (this.filter !== 'Page') this.ChangeDisplay('Search')
+        else                        this.ChangeDisplay('All Characters')
+
+        switch (this.filter) {
+          case 'Name':
+              fetch(this.graphQlUri, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                query: `
+                  query {
+                    characters(filter:{name:"${phrase}"}) {
+                      results{     
+                        id
+                        name
+                        gender
+                        status
+                        species
+                        image
+                        episode {
+                          episode
+                        }
+                      }
+                    }
+                  }
+                `
+              })
+            }).then(res => res.json()).then(data => {
+              console.log(data);
+              if(!data.data.characters) return;
+              this.markFavorites(data.data.characters.results);
+              this.searchResult = data.data.characters.results;
+            });
+          break;
+          case 'Identifier':
+              fetch(this.graphQlUri, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                query: `
+                  query {
+                    character(id:${phrase}) {
+                        id
+                        name
+                        gender
+                        status
+                        species
+                        image
+                        episode {
+                          episode
+                        }
+                    }
+                  }
+                `
+              })
+            }).then(res => res.json()).then(data => {
+              console.log(data.data);
+              if (!data.data.character) return;
+              this.searchResult = [data.data.character];
+              this.markFavorites(this.searchResult);
+            });
+          break;
+          case 'Episode':
+              fetch(this.graphQlUri, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                query: `
+                  query {
+                    episodes(filter:{episode:"${phrase}"}) {
+                      results {
+                        characters{     
+                          id
+                          name
+                          gender
+                          status
+                          species
+                          image
+                          episode {
+                            episode
+                          }
+                        }
+                      }
+                    }
+                  }
+                `
+              })
+            }).then(res => res.json()).then(data => {
+              console.log(data);
+              if (!data.data.episodes) return;
+              this.searchResult = data.data.episodes.results[0].characters
+              this.markFavorites(data.data.episodes.results[0].characters);
+            });
+          break;
+          case 'Page':
+            fetch(this.graphQlUri, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                query: `
+                  query {
+                    characters(page:${this.pageNum}) {
+                      results {
+                        id
+                        name
+                        gender
+                        status
+                        species
+                        image
+                        episode {
+                          episode
+                        }
+                      }
+                    }
+                  }
+                `
+              })
+            }).then(res => res.json()).then(data => {
+              console.log(data.data);
+              if (!data.data.characters)  return;
+              this.Characters.set(phrase, data.data.characters.results);
+              this.markFavorites(data.data.characters.results);
+            });
+          break;
+        }
       }
   },
   computed: {
     currentPayload: function(): Array<any> {
-      if (this.display === "All Characters") return this.currentPage;
+      if (this.display === "All Characters") return this.Characters.get(this.pageNum);
       else if (this.display === "Favorites") return this.favorites;
+      else if (this.display === "Search") return this.searchResult;
       else return [];
     },
     isDisplayAllChars: function(): boolean {
       return this.display === "All Characters";
+    },
+    activeMenu: function(): boolean {
+      return this.display !== "Search";
     }
   }
 })
@@ -81,8 +248,13 @@ export default class App extends Vue {}
 </script>
 
 <style>
+@font-face {
+    font-family: Poppins;
+    src: url(assets/Poppins-Regular.ttf);
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: Poppins;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

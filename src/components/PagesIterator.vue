@@ -23,7 +23,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue' 
 export default defineComponent({
-    props: [],
+    props: ["startPage"],
     data() {
         return {
             pages: [1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -31,6 +31,9 @@ export default defineComponent({
             p: 0, // id of first displayed page
             previewLen: 3
         };
+    },
+    mounted() {
+        this.activePage = this.startPage;
     },
     computed: {
         pagesToDisplay: function(): Array<number> {
@@ -52,7 +55,6 @@ export default defineComponent({
     },
     methods: {
         signalActivePage(pageNum: number): void {
-            if (this.activePage === pageNum)    return;
             this.activePage = pageNum;
             this.$emit('newPage', pageNum);
         },
@@ -98,7 +100,7 @@ export default defineComponent({
 
 .pages {
     display: flex;
-    margin-left: 18px;
+    margin-left: 15px;
     margin-top: 18px;
     margin-bottom: 18px;
 }
