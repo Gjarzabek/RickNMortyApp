@@ -1,7 +1,8 @@
 <template>
-  <Nav/>
+  <Nav @filterChange="changeFilter"/>
   <Menu @optionChange="ChangeDisplay"/>
   <Characters @addFavorite="addFavoriteChar" @removeFavorite="removeFavoriteChar" :characters="currentPayload"/>
+  <PagesIterator v-if="isDisplayAllChars" @newPage="changePage"/>
 </template>
 
 <script lang="ts">
@@ -9,12 +10,14 @@ import { Options, Vue } from "vue-class-component";
 import Nav from "./components/Nav.vue";
 import Menu from "./components/Menu.vue";
 import Characters from "./components/Characters.vue";
+import PagesIterator from "./components/PagesIterator.vue";
 
 @Options({
   components: {
     Nav,
     Menu,
-    Characters
+    Characters,
+    PagesIterator
   },
   data() {
     return {
@@ -29,7 +32,8 @@ import Characters from "./components/Characters.vue";
         {"id":16,"name":"Amish Cyborg","status":"Dead","species":"Alien","type":"Parasite","gender":"Male","origin":{"name":"unknown","url":""},"location":{"name":"Earth (Replacement Dimension)","url":"https://rickandmortyapi.com/api/location/20"},"image":"https://rickandmortyapi.com/api/character/avatar/16.jpeg","episode":["https://rickandmortyapi.com/api/episode/15"],"url":"https://rickandmortyapi.com/api/character/16","created":"2017-11-04T21:12:45.235Z"},
         {"id":25,"name":"Armothy","status":"Dead","species":"unknown","type":"Self-aware arm","gender":"Male","origin":{"name":"Post-Apocalyptic Earth","url":"https://rickandmortyapi.com/api/location/8"},"location":{"name":"Post-Apocalyptic Earth","url":"https://rickandmortyapi.com/api/location/8"},"image":"https://rickandmortyapi.com/api/character/avatar/25.jpeg","episode":["https://rickandmortyapi.com/api/episode/23"],"url":"https://rickandmortyapi.com/api/character/25","created":"2017-11-05T08:54:29.343Z"}
       ],
-      favorites: []
+      favorites: [],
+      filter: "Name"
     };
   },
   methods: {
@@ -39,7 +43,11 @@ import Characters from "./components/Characters.vue";
         console.log("changeDisplay: ", event);
       },
       addFavoriteChar(character: any): void {
+        const isInFavorites = this.favorites.find((char: any) => {
+            return char.id === character.id;
+        });
         character.favorite = true;
+        if (isInFavorites)  return;
         this.favorites.push(character);
       },
       removeFavoriteChar(charId: number): void {
@@ -49,6 +57,13 @@ import Characters from "./components/Characters.vue";
         if (!character) return;
         character.favorite = false;
         this.favorites = this.favorites.filter((char: any) => {return char.id != charId});
+      },
+      changePage(pageNum: number): void {
+        console.log("changingPage", pageNum);
+      },
+      changeFilter(filter: string): void {
+        console.log("FilterChange", filter);
+        this.filter = filter;
       }
   },
   computed: {
@@ -56,6 +71,9 @@ import Characters from "./components/Characters.vue";
       if (this.display === "All Characters") return this.currentPage;
       else if (this.display === "Favorites") return this.favorites;
       else return [];
+    },
+    isDisplayAllChars: function(): boolean {
+      return this.display === "All Characters";
     }
   }
 })

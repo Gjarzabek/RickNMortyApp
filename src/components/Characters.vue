@@ -1,15 +1,15 @@
 <template>
     <div class="container-fluid">
         <div class="row align-items-center bottomBorder p-4" id="firstrow">
-            <div class="col-1 text-left"></div>
-            <div class="col-1 text-left" style="width: 50px;">Photo</div>
-            <div class="col text-left">Character ID</div>
-            <div class="col text-left">Name</div>
-            <div class="col text-left">Gender</div>
-            <div class="col text-left">Species</div>
-            <div class="col text-left">Last Episode</div>
-            <div class="col-1 text-left">Add To Favorites</div>
-            <div class="col-1 text-left"></div>
+            <b class="col-1 text-left"></b>
+            <b class="col-1 text-left" style="width: 50px;">Photo</b>
+            <b class="col text-left">Character ID</b>
+            <b class="col text-left">Name</b>
+            <b class="col text-left">Gender</b>
+            <b class="col text-left">Species</b>
+            <b class="col text-left">Last Episode</b>
+            <b class="col-1 text-nowrap text-left">Add To Favorites</b>
+            <b class="col-1 text-left"></b>
         </div>
         <div v-for="char in characters" v-bind:key="char.id" class="row align-items-center p-4 bottomBorder">
             <div class="col-1 text-left"></div>

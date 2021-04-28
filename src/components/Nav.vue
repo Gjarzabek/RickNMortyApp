@@ -14,7 +14,7 @@
                                 <div class="navBarItem" @click="toogleDropdown">
                                     <div class="itemContent">
                                         {{activeFilter}}
-                                        <div class="arrow-down"></div>
+                                        <div class="arrowDown"></div>
                                     </div>
                                 </div>
                                 <div class="container">
@@ -42,6 +42,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue' 
 
+type Filter = "Name" | "Episode" | "Identifier";
+
 export default defineComponent({
   props: [],
   data() {
@@ -54,9 +56,11 @@ export default defineComponent({
       toogleDropdown(): void {
           this.showDropdown = !this.showDropdown;
       },
-      setActiveFilter(filter: string): void {
-          this.activeFilter = filter;
+      setActiveFilter(filter: Filter): void {
           this.toogleDropdown();
+          if (this.activeFilter===filter)   return;
+          this.activeFilter = filter;
+          this.$emit('filterChange', filter);
       }
   },
   components: {},
@@ -131,7 +135,7 @@ export default defineComponent({
     cursor: pointer;
 }
 
-.arrow-down {
+.arrowDown {
   width: 0; 
   height: 0; 
   border-left: 5px solid transparent;
