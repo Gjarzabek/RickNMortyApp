@@ -40,11 +40,13 @@ import PagesIterator from "./components/PagesIterator.vue";
       catch {
         this.favorites = [];
       }
+      if (!this.favorites)  this.favorites = [];
       for (const character of this.favorites)
         character.favorite = true;
   },
   methods: {
       markFavorites(characters: Array<any>): void {
+        if (!this.favorites)  this.favorites = [];
         for (const character of characters) {
             const isInFavorites = this.favorites.find((favorite: any) => {
                 return favorite.id === character.id;
